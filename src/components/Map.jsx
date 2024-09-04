@@ -15,9 +15,7 @@ import "leaflet.markercluster/dist/MarkerCluster.Default.css";
 import MarkerClusterGroup from "@changey/react-leaflet-markercluster";
 import L from "leaflet";
 
-
-
-
+//d
 const createCurvedLine = (startLatLng, endLatLng) => {
     const latlngs = [];
     const offsetX = endLatLng[1] - startLatLng[1];
