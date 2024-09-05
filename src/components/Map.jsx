@@ -1,5 +1,5 @@
 import React from "react";
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useEffect, useContext, useCallback, useMemo } from "react";
 
 import {
   MapContainer,
@@ -8,14 +8,15 @@ import {
   Popup,
   Tooltip,
   useMap,
+  useMapEvents,
 } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import "leaflet.markercluster/dist/MarkerCluster.css";
 import "leaflet.markercluster/dist/MarkerCluster.Default.css";
 import MarkerClusterGroup from "@changey/react-leaflet-markercluster";
 import L from "leaflet";
+import { DataSourceContext } from "../contexts/DataSource";
 
-//d
 const createCurvedLine = (startLatLng, endLatLng) => {
   const latlngs = [];
   const offsetX = endLatLng[1] - startLatLng[1];
@@ -56,7 +57,7 @@ const CurvedLine = ({ feature, index, visible }) => {
     if (!visible) return;
 
     const curvedPath = createCurvedLine(
-      feature.origin.coordinates,
+      [-25.274398, 133.775136],
       feature.destination.coordinates
     );
 
@@ -79,6 +80,7 @@ const CurvedLine = ({ feature, index, visible }) => {
 };
 
 export const Map = ({ features }) => {
+  const { dataSource, setDataSource } = useContext(DataSourceContext);
   const [map, setMap] = useState(null);
   const [selectedFeature, setSelectedFeature] = useState(null);
   const [groupedFeatures, setGroupedFeatures] = useState({});
@@ -127,15 +129,31 @@ export const Map = ({ features }) => {
   }, [map, features]);
 
   const handleMarkerClick = useCallback((feature, e) => {
-    console.log("Marker clicked:", feature);
+    // console.log("Marker clicked:", feature);
+    setDataSource(feature);
+    console.log(feature);
     setSelectedFeature(feature[0]);
+    console.log(dataSource[0]);
+    // console.log(feature);
+
     e.originalEvent.stopPropagation();
   }, []);
 
-  const handleMapClick = useCallback((e) => {
-    console.log("Map clicked");
-    setSelectedFeature(null);
-  }, []);
+  function MapEvents({ onClick }) {
+    useMapEvents({
+      click: onClick,
+    });
+    return null;
+  }
+
+  const handleMapClick = useCallback(
+    (e) => {
+      console.log("Map clicked");
+      setDataSource(features);
+      setSelectedFeature(null);
+    },
+    [features]
+  );
 
   const renderMarker = (coordKey, { features, name }) => {
     const [lat, lng] = coordKey.split(",").map(Number);
@@ -156,32 +174,43 @@ export const Map = ({ features }) => {
           {isGrouped ? (
             <>
               <strong>Total Waste:</strong>{" "}
-              {Math.round(
-                features.reduce(
-                  (sum, f) => sum + parseFloat(f.origin.tonnes),
-                  0
-                ) * 10
-              ) / 10}{" "}
-              tonnes
+              <span className="text-emerald-800 text-xs font-mono">
+                {(
+                  Math.round(
+                    features.reduce(
+                      (sum, f) => sum + parseFloat(f.origin.tonnes),
+                      0
+                    ) * 10
+                  ) / 10
+                ).toLocaleString() + " "}
+                tonnes
+              </span>
               <br />
               <strong>Cost:</strong>{" "}
-              {Math.round(
-                features.reduce(
-                  (sum, f) => sum + parseFloat(f.destination.value),
-                  0
-                ) * 10
-              ) / 10}{" "}
-              AUD
+              <span className="text-emerald-800 text-xs font-mono">
+                {(
+                  Math.round(
+                    features.reduce(
+                      (sum, f) => sum + parseFloat(f.destination.value),
+                      0
+                    ) * 10
+                  ) / 10
+                ).toLocaleString()}{" "}
+                AUD
+              </span>
               <br />
-              <strong>Number of Shipments:</strong> {features.length}
+              <strong>Number of Shipments:</strong>{" "}
+              <span className="text-emerald-800 text-xs font-mono">
+                {features.length}
+              </span>
               <br />
-              <strong>Classes:</strong>{" "}
+              {/* <strong>Classes:</strong>{" "}
               {[
                 ...new Set(
                   features.map((f) => f.AdditionalClassificationInformation)
                 ),
               ].join(", ")}
-              <br />
+              <br /> */}
               {/*<strong>Quarters:</strong> {[...new Set(features.map(f => f.origin.quarter))].join(', ')}*/}
               {/*<br/>*/}
               {/*<strong>AHECCs:</strong> {[...new Set(features.map(f => f.AHECC))].join(', ')}*/}
@@ -189,10 +218,11 @@ export const Map = ({ features }) => {
           ) : (
             <>
               <strong className="text-emerald-900">
-                From: {features[0].origin.name}
+                From: {features[0].destination.name}
               </strong>
               <br />
-              <strong>Waste:</strong> {features[0].origin.tonnes} tonnes
+              <strong>Waste:</strong>{" "}
+              {features[0].origin.tonnes.toLocaleString()} tonnes
               <br />
               <strong>Class:</strong>{" "}
               {features[0].AdditionalClassificationInformation}
@@ -210,7 +240,7 @@ export const Map = ({ features }) => {
 
   return (
     <MapContainer
-      className="rounded-xl h-[500px] w-[820px] border-2 border-emerald-900"
+      className="rounded-xl sm:h-[500px] sm:w-[820px] border shadow-md transition hover:shadow-emerald-500 border-neutral-600"
       center={[0, 0]}
       zoom={2}
       minZoom={2}
@@ -232,7 +262,7 @@ export const Map = ({ features }) => {
           [100, 190],
         ]}
       />
-
+      <MapEvents onClick={handleMapClick} />
       <MarkerClusterGroup
         chunkedLoading
         spiderfyOnMaxZoom={true}
@@ -246,14 +276,14 @@ export const Map = ({ features }) => {
         )}
       </MarkerClusterGroup>
 
-      {features.map((feature, index) => (
+      {/* {features.map((feature, index) => (
         <CurvedLine
           key={`line-${index}`}
           feature={feature}
           index={index}
           visible={selectedFeature === feature}
         />
-      ))}
+      ))} */}
     </MapContainer>
   );
 };
