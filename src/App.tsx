@@ -4,10 +4,12 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Dashboard from "./pages/Dashboard.jsx";
 // @ts-expect-error
 import DataSourceContextProvider from "./contexts/DataSource.jsx";
+import { ThemeProvider } from "./components/theme/ThemeProvider.tsx";
 
 function App() {
 
   return (
+    <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
     <DataSourceContextProvider>
     <BrowserRouter>
     <Routes>
@@ -16,6 +18,7 @@ function App() {
     </Routes>
   </BrowserRouter>
   </DataSourceContextProvider>
+  </ThemeProvider>
   )
 }
 

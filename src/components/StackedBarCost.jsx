@@ -42,30 +42,42 @@ function processWasteData(data) {
 }
 
 const customFormatter = (value, entry) => {
-  return <span className="text-white font-mono text-xs">{value}</span>;
+  return <span className="text-white text-xs">{value}</span>;
 };
 
 const CustomTooltip = ({ active, payload, label }) => {
-  if (active) {
+  if (active && payload && payload.length) {
     return (
-      <div className="bg-black rounded-xl border border-neutral-600 p-3 text-xs">
-        <p className="text-sm font-bold mb-0.5 text-emerald-500">
-          Year {label}
-        </p>
-        <div className="border-1 p-1 rounded-xl border-neutral-500">
-          {payload.map((element, index) => (
-            <p key={index} className="">
-              <span className="font-bold" style={{ color: element.color }}>
-                {element.dataKey}{" "}
-              </span>
-              : {` ${element.value}%`}
-              <p></p>
-            </p>
-          ))}
+      <div className="bg-black rounded-xl border border-neutral-500 p-3 text-xs">
+        <p className="text-sm font-bold mb-1 text-emerald-500">Year {label}</p>
+        <div className="border rounded-xl border-neutral-500 overflow-hidden">
+          <table className="w-full">
+            <tbody>
+              {payload.map((element, index) => (
+                <tr
+                  key={index}
+                  className={
+                    index % 2 === 0 ? "bg-neutral-900" : "bg-neutral-800"
+                  }
+                >
+                  <td
+                    className="py-1 px-3 font-bold"
+                    style={{ color: element.color }}
+                  >
+                    {element.dataKey}
+                  </td>
+                  <td className="py-1 px-3 text-right">
+                    {element.value.toLocaleString() + "%"}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       </div>
     );
   }
+  return null;
 };
 
 const CustomYAxisTick = ({ x, y, payload }) => {
@@ -86,7 +98,7 @@ export default function StackedBarCost({ data }) {
   return (
     <ResponsiveContainer width="100%" height="100%">
       <BarChart
-        className="bg-neutral-800 text-white rounded-xl rounded-t-none "
+        className="bg-standard text-white border border-borderColor rounded-lg border-t-0 rounded-t-none "
         data={dataset}
         margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
       >

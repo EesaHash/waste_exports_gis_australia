@@ -1,9 +1,7 @@
 export default function Header() {
   return (
-    <>
-      <h1 className="font-bold text-emerald-500 text-xl font-mono p-5">
-        Australian Waste Exports
-      </h1>
-    </>
+    <div className="font-bold text-white  bg-standard border-borderColor text-2xl  w-screem border mb-4 p-5">
+      Australian Waste Exports
+    </div>
   );
 }

@@ -1,9 +1,11 @@
 import React, { useState, useEffect, useContext } from "react";
+import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { Map } from "../components/Map.jsx";
 import data from "../data/data.json";
 import { RxCross1 } from "react-icons/rx";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { VscClearAll } from "react-icons/vsc";
 import {
   Popover,
   PopoverTrigger,
@@ -57,6 +59,7 @@ export default function Dashboard() {
     "origin.quarter": [],
     MaterialGroup: [],
     "destination.name": [],
+    "origin.name": [],
   });
   const [features, setFeatures] = useState(data);
   const { dataSource, setDataSource } = useContext(DataSourceContext);
@@ -66,6 +69,7 @@ export default function Dashboard() {
     "origin.quarter": getUniqueValues(data, "origin.quarter"),
     MaterialGroup: getUniqueValues(data, "MaterialGroup"),
     "destination.name": getUniqueValues(data, "destination.name"),
+    "origin.name": getUniqueValues(data, "origin.name"),
   };
 
   useEffect(() => {
@@ -105,48 +109,44 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="w-screen h-screen bg-black overflow-hidden">
+    <div className="w-screen h-screen bg-black overflow-hidden ">
       <Header />
-      <div className="flex space-x-6 h-[calc(100vh-64px)] overflow-y-auto">
+      <div className="flex desktop:p-10 desktop:justify-center space-x-6 h-[calc(100vh-64px)] overflow-y-auto">
         <div className="max-w-[845px] flex-shrink-0">
-          <div className="flex flex-wrap border border-neutral-600 ml-5 justify-center bg-neutral-800 rounded-xl mb-3">
+          <div className="flex flex-wrap border border-borderColor ml-5 justify-center bg-standard rounded-lg mb-3">
             {[
               { label: "Destination", filterType: "destination.name" },
               { label: "Year", filterType: "origin.year" },
               { label: "Quarter", filterType: "origin.quarter" },
               { label: "Class", filterType: "MaterialGroup" },
+              { label: "State", filterType: "origin.name" },
             ].map(({ label, filterType }) => (
               <div
                 key={label}
                 className=" flex flex-col ml-1 mb-3 mt-3 space-y-2"
               >
-                {/* <label className="text-white text-xs mt-1 font-mono">
-                {label}
-              </label> */}
                 <Popover>
                   <div>
                     <PopoverTrigger asChild>
                       <Button
                         variant="outline"
-                        className="w-[150px] text-xs rounded border border-neutral-500 bg-black text-white h-6 justify-between"
+                        className="w-[120px] text-xs text-white rounded-lg "
                       >
                         {filters[filterType].length > 0
                           ? `${filters[filterType].length}${
                               " " + label + "(s)"
                             }`
                           : `${label}`}
-                        <ChevronDown className="h-auto w-4 opacity-50" />
+                        <ChevronDown className="h-auto w-4 ml-2 opacity-50" />
                       </Button>
                     </PopoverTrigger>
-                    <button
-                      className="text-white font-bold rounded-full"
-                      onClick={() => clearFilter(filterType)}
-                    >
+
+                    <button onClick={() => clearFilter(filterType)}>
                       <RxCross1 className="text-neutral-500  rounded-full hover:border-red-500 hover:text-red-400 font-bold transition text-xs ml-1 mt-1" />
                     </button>
                   </div>
-                  <PopoverContent className="w-[200px]  bg-black border scrollbar-thin scrollbar-track-emerald-500 border-neutral-500 text-white rounded-xl ml-5 p-1">
-                    <ScrollArea className="h-[200px] max-h-[300px] w-[200px] rounded-md p-2">
+                  <PopoverContent className="w-[220px]  bg-black border scrollbar-thin scrollbar-track-emerald-500 border-neutral-500 text-white rounded-lg ml-5 p-5">
+                    <ScrollArea className="h-[200px] max-h-[300px] w-[200px] rounded-md">
                       {filterOptions[filterType].map((option) => (
                         <div
                           key={option}
@@ -172,9 +172,9 @@ export default function Dashboard() {
                   </PopoverContent>
                 </Popover>
                 <div className="flex flex-row space-y-2">
-                  <div className="text-white text-xs w-[170px]">
-                    <div className="overflow-x-auto text-xs overflow-y-hidden content-center  rounded scrollbar-none scrollbar-thumb-emerald-500 scrollbar-track-emerald-700 h-6">
-                      <p className="bont-bold bg-black border border-neutral-500 rounded ml-1 text-emerald-500 whitespace-nowrap">
+                  <div className="text-white text-xs w-[140px]">
+                    <div className="overflow-x-auto border p-1 border-borderColor  text-xs overflow-y-hidden content-center  rounded scrollbar-none scrollbar-thumb-emerald-500 scrollbar-track-emerald-700 h-7">
+                      <p className="bont-bold  rounded ml-1 text-emerald-500 whitespace-nowrap">
                         {filters[filterType].join(" | ") || "All"}
                       </p>
                     </div>
@@ -182,26 +182,39 @@ export default function Dashboard() {
                 </div>
               </div>
             ))}
+            <button
+              onClick={() => {
+                clearFilter("destination.name");
+                clearFilter("origin.name");
+                clearFilter("origin.year");
+                clearFilter("origin.quarter");
+                clearFilter("MaterialGroup");
+              }}
+              className="ml-3 mr-3 mt-7 mb-7"
+            >
+              <VscClearAll className="rounded-full transition bg-emerald-600 p-2 hover:bg-emerald-500 text-3xl text-white" />
+            </button>
           </div>
-
           <div className="relative ml-5 z-10 h-[calc(100vh-200px)]">
             <Map features={features} />
           </div>
         </div>
-        <div className="flex-shrink-0">
+
+        <div className="flex-shrink-0 space-y-8">
           <Information></Information>
-          <Carousel className="w-[520px] ml-10 h-[320px]">
+
+          <Carousel className="w-[520px] text-neutral-200 ml-10 h-[320px]">
             <CarouselContent>
               <CarouselItem className="flex flex-col items-center w-[520px] h-[320px]">
-                <h1 className="text-emerald-500 w-full flex justify-center bg-neutral-800 border-neutral-600 border-t rounded-t-xl text-xl">
+                <h1 className="text-white text-lg font-semibold w-full flex justify-center bg-standard border-borderColor border border-b-0 rounded-t-lg">
                   Exported Waste Categories (tonnes) By Years
                 </h1>
                 <div className="w-full  border-neutral-600 h-[290px]">
-                  <StackedBarWaste data={features} />
+                  <LineChartCost data={features} />
                 </div>
               </CarouselItem>
               <CarouselItem className="flex flex-col items-center w-[520px] h-[320px]">
-                <h1 className="text-emerald-500 w-full flex justify-center bg-neutral-800 border-neutral-600 border-t rounded-t-xl text-xl">
+                <h1 className="text-white font-semibold text-lg  w-full flex justify-center bg-standard border-borderColor border border-b-0 rounded-t-lg">
                   Exported Waste Categories (Value %) By Years
                 </h1>
                 <div className="w-full h-[290px]">
@@ -209,11 +222,11 @@ export default function Dashboard() {
                 </div>
               </CarouselItem>
               <CarouselItem className="flex flex-col items-center w-[520px] h-[320px]">
-                <h1 className="text-emerald-500 w-full flex justify-center bg-neutral-800 border-neutral-600 border-t rounded-t-xl text-xl">
+                <h1 className="text-white font-semibold text-lg  w-full flex justify-center bg-standard border-borderColor border border-b-0 rounded-t-lg">
                   Exported Waste (tonnes) By Years
                 </h1>
                 <div className="w-full h-[290px]">
-                  <LineChartCost data={features} />
+                  <StackedBarWaste data={features} />
                 </div>
               </CarouselItem>
             </CarouselContent>

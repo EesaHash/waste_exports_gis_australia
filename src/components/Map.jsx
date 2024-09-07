@@ -91,7 +91,7 @@ export const Map = ({ features }) => {
         iconUrl:
           "https://img.icons8.com/ios-filled/50/022c22/filled-circle.png",
         iconSize: [20, 20],
-        iconAnchor: [15.5, 42],
+        iconAnchor: [0, 0],
         popupAnchor: [0, -45],
       }),
     []
@@ -114,12 +114,12 @@ export const Map = ({ features }) => {
       const originKey = feature.origin.coordinates.join(",");
       const destKey = feature.destination.coordinates.join(",");
 
-      if (!acc[originKey])
-        acc[originKey] = { features: [], name: feature.origin.name };
+      // if (!acc[originKey])
+      //   acc[originKey] = { features: [], name: feature.origin.name };
       if (!acc[destKey])
         acc[destKey] = { features: [], name: feature.destination.name };
 
-      acc[originKey].features.push(feature);
+      // acc[originKey].features.push(feature);
       acc[destKey].features.push(feature);
 
       return acc;
@@ -218,7 +218,7 @@ export const Map = ({ features }) => {
           ) : (
             <>
               <strong className="text-emerald-900">
-                From: {features[0].destination.name}
+                From: {features[0].origin.name}
               </strong>
               <br />
               <strong>Waste:</strong>{" "}
@@ -240,7 +240,7 @@ export const Map = ({ features }) => {
 
   return (
     <MapContainer
-      className="rounded-xl sm:h-[500px] sm:w-[820px] border shadow-md transition hover:shadow-emerald-500 border-neutral-600"
+      className="rounded-lg h-[500px] sm:w-[600px] md:w-[820px] border shadow-md transition hover:shadow-emerald-500 border-neutral-600"
       center={[0, 0]}
       zoom={2}
       minZoom={2}

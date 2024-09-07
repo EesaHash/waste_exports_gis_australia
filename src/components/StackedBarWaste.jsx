@@ -40,37 +40,46 @@ function processWasteData(data) {
 }
 
 const customFormatter = (value, entry) => {
-  return <span className="text-white font-mono text-xs">{value}</span>;
+  return <span className="text-white text-xs">{value}</span>;
 };
 
 const CustomTooltip = ({ active, payload, label }) => {
-  if (active) {
-    let total = 0;
-    payload.forEach((e) => {
-      total += e.value;
-    });
-    return (
-      <div className="bg-black rounded-xl border border-neutral-500 p-3 text-xs">
-        <p className="text-sm font-bold mb-0.5 text-emerald-500">
-          Year {label}
-        </p>
-        <div className="border p-1 rounded-xl border-neutral-500">
-          {payload.map((element, index) => (
-            <p key={index} className="">
-              <span className="font-bold" style={{ color: element.color }}>
-                {element.dataKey}{" "}
-              </span>
-              : {` ${element.value} tonnes`}
-              <p></p>
-            </p>
-          ))}
-        </div>
-        <p className="text-sm text-emerald-500 mt-0.5 font-bold">
-          Total Waste {"" + Math.round(total * 10) / 10}
-        </p>
+  if (!active || !payload) return null;
+
+  // Sort payload by value in descending order
+  const sortedPayload = [...payload].sort((a, b) => b.value - a.value);
+
+  const total = sortedPayload.reduce((sum, entry) => sum + entry.value, 0);
+
+  return (
+    <div className="bg-black rounded-xl border border-neutral-500 p-4 text-xs">
+      <p className="text-sm font-bold mb-2 text-emerald-500">Year {label}</p>
+      <div className="border rounded-xl border-neutral-500 overflow-hidden mb-2">
+        <table className="w-full">
+          <tbody>
+            {sortedPayload.map((element, index) => (
+              <tr
+                key={index}
+                className={
+                  index % 2 === 0 ? "bg-neutral-900" : "bg-neutral-800"
+                }
+              >
+                <td className="px-3 font-bold" style={{ color: element.color }}>
+                  {element.dataKey}
+                </td>
+                <td className="px-3 text-right">
+                  {element.value.toLocaleString()} tonnes
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
-    );
-  }
+      <p className="text-sm text-emerald-500 font-bold text-right">
+        Total Waste: {(Math.round(total * 10) / 10).toLocaleString()} tonnes
+      </p>
+    </div>
+  );
 };
 
 export default function StackedBarWaste(data) {
@@ -89,7 +98,7 @@ export default function StackedBarWaste(data) {
     // </h1> */}
     <ResponsiveContainer width="100%" height="100%">
       <BarChart
-        className="bg-neutral-800 text-white rounded-xl rounded-t-none "
+        className="bg-standard text-white border border-borderColor rounded-lg border-t-0 rounded-t-none "
         width={500}
         height={300}
         data={dataset}

@@ -36,7 +36,7 @@ function processWasteData(data) {
 }
 
 const customFormatter = (value, entry) => {
-  return <span className="text-white font-mono text-xs">{value}</span>;
+  return <span className="text-white text-xs">{value}</span>;
 };
 
 const CustomTooltip = ({ active, payload, label }) => {
@@ -48,18 +48,30 @@ const CustomTooltip = ({ active, payload, label }) => {
 
     return (
       <div className="bg-black rounded-xl border border-neutral-500 p-3 text-xs">
-        <p className="text-sm font-bold mb-0.5 text-emerald-500">
-          Year {label}
-        </p>
-        <div className="border p-1 rounded-xl border-neutral-500">
-          {sortedPayload.map((element, index) => (
-            <p key={index} className="">
-              <span className="font-bold" style={{ color: element.color }}>
-                {element.dataKey}{" "}
-              </span>
-              : {` ${element.value}`}
-            </p>
-          ))}
+        <p className="text-sm font-bold mb-1 text-emerald-500">Year {label}</p>
+        <div className="border rounded-xl border-neutral-500 overflow-hidden">
+          <table className="w-full">
+            <tbody>
+              {sortedPayload.map((element, index) => (
+                <tr
+                  key={index}
+                  className={
+                    index % 2 === 0 ? "bg-neutral-900" : "bg-neutral-800"
+                  }
+                >
+                  <td
+                    className="py-1 px-3 font-bold"
+                    style={{ color: element.color }}
+                  >
+                    {element.dataKey}
+                  </td>
+                  <td className="py-1 px-3 text-right">
+                    {element.value.toLocaleString()}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       </div>
     );
@@ -87,7 +99,7 @@ export default function LineChartCost(data) {
   return (
     <ResponsiveContainer width="100%" height="100%">
       <LineChart
-        className="bg-neutral-800 text-white rounded-xl rounded-t-none "
+        className="bg-standard text-white border border-borderColor rounded-lg border-t-0 rounded-t-none "
         data={dataset}
         margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
       >
@@ -113,11 +125,12 @@ export default function LineChartCost(data) {
           }}
         />
         <Tooltip cursor={{ fill: "none" }} content={<CustomTooltip />} />
-        <Line
+
+        {/* <Line
           formatter={customFormatter}
           iconType="circle"
           wrapperStyle={{ width: 510, whiteSpace: "break-spaces" }}
-        />
+        /> */}
         <Line dataKey="Glass" stackId="a" stroke="#ea7600" name="Glass" />
         <Line
           dataKey="Hazardous (excl. tyres)"
@@ -138,6 +151,14 @@ export default function LineChartCost(data) {
           dataKey="Other core waste"
           stroke="#C2B280"
           name="Other core waste"
+        />
+        <Legend
+          formatter={customFormatter}
+          iconType="circle"
+          wrapperStyle={{
+            width: 530,
+            whiteSpace: "break-spaces",
+          }}
         />
       </LineChart>
     </ResponsiveContainer>
