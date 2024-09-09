@@ -35,7 +35,7 @@ const formatValue = (value) => {
   } else if (value >= 1000) {
     return (value / 1000).toFixed(1) + "k";
   } else {
-    return value.toFixed(0);
+    return value;
   }
 };
 
@@ -112,12 +112,12 @@ export const Map = ({ features, toggleHV }) => {
 
       // Custom gradient
       const gradient = {
-        0.0: "rgba(0, 0, 255, 0.7)", // Pure blue
-        0.2: "rgba(0, 102, 255, 0.7)", // Strong medium blue
-        0.3: "rgba(0, 191, 255, 0.7)", // Bright cyan blue
-        0.6: "rgba(0, 255, 127, 0.7)", // Bright greenish teal
-        0.8: "rgba(255, 215, 0, 0.7)", // Strong gold yellow
-        1.0: "rgba(255, 69, 0, 0.7)", // Bright orange-red
+        0.0: "rgba(0, 0, 255, 1)",
+        0.2: "rgba(0, 102, 255, 1)",
+        0.3: "rgba(0, 191, 255, 1)",
+        0.6: "rgba(0, 255, 127, 1)",
+        0.8: "rgba(255, 215, 0, 1)",
+        1.0: "rgba(255, 69, 0, 1)",
       };
 
       const heatmap = L.heatLayer(points, {
@@ -233,8 +233,17 @@ export const Map = ({ features, toggleHV }) => {
                 From: {features[0].origin.name}
               </strong>
               <br />
-              <strong>Waste:</strong> {formatValue(features[0].origin.tonnes)}{" "}
-              tonnes
+              <strong>Waste:</strong>
+              <span className="text-emerald-800 text-xs font-mono">
+                {" "}
+                {formatValue(features[0].origin.tonnes)} tonnes{" "}
+              </span>
+              <br />
+              <strong>Cost:</strong>
+              <span className="text-emerald-800 text-xs font-mono">
+                {" "}
+                ${formatValue(features[0].origin.value)}{" "}
+              </span>
               <br />
               <strong>Class:</strong>{" "}
               {features[0].AdditionalClassificationInformation}
