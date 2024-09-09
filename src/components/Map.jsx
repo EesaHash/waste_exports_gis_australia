@@ -25,7 +25,19 @@ import L from "leaflet";
 import "leaflet.heat";
 import { DataSourceContext } from "../contexts/DataSource";
 
-export const Map = ({ features }) => {
+const formatValue = (value) => {
+  if (value >= 1000000000) {
+    return (value / 1000000000).toFixed(1) + "B";
+  } else if (value >= 1000000) {
+    return (value / 1000000).toFixed(1) + "M";
+  } else if (value >= 1000) {
+    return (value / 1000).toFixed(1) + "k";
+  } else {
+    return value.toFixed(0);
+  }
+};
+
+export const Map = ({ features, toggleHV }) => {
   const { dataSource, setDataSource } = useContext(DataSourceContext);
   const [map, setMap] = useState(null);
   const [selectedFeature, setSelectedFeature] = useState(null);
@@ -81,24 +93,12 @@ export const Map = ({ features }) => {
     return null;
   }
 
-  const formatValue = (value) => {
-    if (value >= 1000000000) {
-      return (value / 1000000000).toFixed(1) + "B";
-    } else if (value >= 1000000) {
-      return (value / 1000000).toFixed(1) + "M";
-    } else if (value >= 1000) {
-      return (value / 1000).toFixed(1) + "k";
-    } else {
-      return value.toFixed(0);
-    }
-  };
-
   const HeatmapLayer = ({ features }) => {
     const map = useMap();
     const legendRef = useRef(null);
 
     useEffect(() => {
-      if (!map || !features.length) return;
+      if (!map || !features.length || !toggleHV) return;
 
       const points = features.map((feature) => [
         feature.destination.coordinates[0],
@@ -119,9 +119,9 @@ export const Map = ({ features }) => {
       };
 
       const heatmap = L.heatLayer(points, {
-        radius: 30,
+        radius: 35,
         blur: 25,
-        maxZoom: 4,
+        maxZoom: 3,
         max: maxValue,
         gradient: gradient,
       }).addTo(map);
@@ -208,7 +208,7 @@ export const Map = ({ features }) => {
               <br />
               <strong>Cost:</strong>{" "}
               <span className="text-emerald-800 text-xs font-mono">
-                {(
+                {formatValue(
                   Math.round(
                     features.reduce(
                       (sum, f) => sum + parseFloat(f.destination.value),
@@ -231,8 +231,8 @@ export const Map = ({ features }) => {
                 From: {features[0].origin.name}
               </strong>
               <br />
-              <strong>Waste:</strong>{" "}
-              {features[0].origin.tonnes.toLocaleString()} tonnes
+              <strong>Waste:</strong> {formatValue(features[0].origin.tonnes)}{" "}
+              tonnes
               <br />
               <strong>Class:</strong>{" "}
               {features[0].AdditionalClassificationInformation}

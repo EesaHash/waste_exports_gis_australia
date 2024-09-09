@@ -6,6 +6,8 @@ import { RxCross1 } from "react-icons/rx";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { VscClearAll } from "react-icons/vsc";
+import { MdLayers } from "react-icons/md";
+import { MdOutlineLayers } from "react-icons/md";
 import {
   Popover,
   PopoverTrigger,
@@ -61,6 +63,7 @@ export default function Dashboard() {
     "destination.name": [],
     "origin.name": [],
   });
+  const [toggleHeatLayerValue, setToggleHeatLayerValue] = useState(true);
   const [features, setFeatures] = useState(data);
   const { dataSource, setDataSource } = useContext(DataSourceContext);
 
@@ -194,9 +197,22 @@ export default function Dashboard() {
             >
               <VscClearAll className="rounded-full transition bg-emerald-600 p-2 hover:bg-emerald-500 text-3xl text-white" />
             </button>
+            <button
+              onClick={() => {
+                setToggleHeatLayerValue(!toggleHeatLayerValue);
+              }}
+              className="mr-3"
+            >
+              {toggleHeatLayerValue && (
+                <MdLayers className="rounded-full transition bg-emerald-600 p-2 hover:bg-emerald-500 text-3xl text-white" />
+              )}
+              {!toggleHeatLayerValue && (
+                <MdOutlineLayers className="rounded-full transition bg-emerald-600 p-2 hover:bg-emerald-500 text-3xl text-white" />
+              )}
+            </button>
           </div>
           <div className="relative ml-5 z-10 h-[calc(100vh-200px)]">
-            <Map features={features} />
+            <Map features={features} toggleHV={toggleHeatLayerValue} />
           </div>
         </div>
 
