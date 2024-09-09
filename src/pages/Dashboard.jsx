@@ -109,7 +109,7 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="w-screen h-screen bg-black overflow-hidden ">
+    <div className="w-screen h-screen bg-neutral-900 overflow-hidden ">
       <Header />
       <div className="flex desktop:p-10 desktop:justify-center space-x-6 h-[calc(100vh-64px)] overflow-y-auto">
         <div className="max-w-[845px] flex-shrink-0">

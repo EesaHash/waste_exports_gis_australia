@@ -240,7 +240,7 @@ export const Map = ({ features }) => {
 
   return (
     <MapContainer
-      className="rounded-lg h-[500px] sm:w-[600px] md:w-[820px] border shadow-md transition hover:shadow-emerald-500 border-neutral-600"
+      className="rounded-lg h-[500px] sm:w-[600px] md:w-[820px] border-2 shadow-md transition hover:border-emerald-500 border-neutral-600"
       center={[0, 0]}
       zoom={2}
       minZoom={2}
