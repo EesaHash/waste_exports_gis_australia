@@ -2,17 +2,17 @@
 @tailwind components;
 @tailwind utilities;
 
+
 /* .leaflet-layer,
 .leaflet-control-zoom-in,
 .leaflet-control-zoom-out,
 .leaflet-control-attribution {
-  filter: invert(100%) hue-rotate(180deg) brightness(95%) contrast(100%);
+  filter: invert(100%) hue-rotate(180deg) brightness(95%) contrast(90%);
 } */
- 
 
 .info {
   padding: 6px 8px;
-  font: 14px/16px Arial, Helvetica, sans-serif;
+  font: 10px/12px Arial, Helvetica, sans-serif;
   background: white;
   background: rgba(255,255,255,0.8);
   box-shadow: 0 0 15px rgba(0,0,0,0.2);
@@ -20,18 +20,19 @@
 }
 .info h4 {
   margin: 0 0 5px;
-  color: #777;
+  color: #047857;
 }
 .legend {
   line-height: 18px;
-  color: #555;
+  color: #777;
+  font-weight: bold;
 }
 .legend i {
   width: 18px;
   height: 18px;
   float: left;
   margin-right: 8px;
-  opacity: 0.7;
+  opacity: 0.5;
 }
 
 ::-webkit-scrollbar {
