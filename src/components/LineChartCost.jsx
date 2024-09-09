@@ -94,7 +94,6 @@ export default function LineChartCost(data) {
   } else {
     dataset = processWasteData(dataSource);
   }
-  console.log(dataset);
 
   return (
     <ResponsiveContainer width="100%" height="100%">

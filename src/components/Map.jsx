@@ -1,5 +1,11 @@
-import React from "react";
-import { useState, useEffect, useContext, useCallback, useMemo } from "react";
+import React, {
+  useState,
+  useEffect,
+  useContext,
+  useCallback,
+  useMemo,
+  useRef,
+} from "react";
 
 import {
   MapContainer,
@@ -14,70 +20,10 @@ import "leaflet/dist/leaflet.css";
 import "leaflet.markercluster/dist/MarkerCluster.css";
 import "leaflet.markercluster/dist/MarkerCluster.Default.css";
 import MarkerClusterGroup from "@changey/react-leaflet-markercluster";
+
 import L from "leaflet";
+import "leaflet.heat";
 import { DataSourceContext } from "../contexts/DataSource";
-
-const createCurvedLine = (startLatLng, endLatLng) => {
-  const latlngs = [];
-  const offsetX = endLatLng[1] - startLatLng[1];
-  const offsetY = endLatLng[0] - startLatLng[0];
-  const r = Math.sqrt(Math.pow(offsetX, 2) + Math.pow(offsetY, 2));
-  const theta = Math.atan2(offsetY, offsetX);
-
-  // Calculate curvature based on distance
-  const curvature = Math.min(Math.max(r * 0.3, 0.5), 2.5); // Increased curvature
-
-  const midPoint = [startLatLng[0] + offsetY / 2, startLatLng[1] + offsetX / 2];
-  const midPointOffsetX = curvature * Math.cos(theta + Math.PI / 2);
-  const midPointOffsetY = curvature * Math.sin(theta + Math.PI / 2);
-  const controlPoint = [
-    midPoint[0] + midPointOffsetY * 20.5, // Increased offset
-    midPoint[1] + midPointOffsetX * 20.5, // Increased offset
-  ];
-
-  for (let i = 0; i <= 100; i++) {
-    const t = i / 100;
-    const lat =
-      Math.pow(1 - t, 2) * startLatLng[0] +
-      2 * (1 - t) * t * controlPoint[0] +
-      Math.pow(t, 2) * endLatLng[0];
-    const lng =
-      Math.pow(1 - t, 2) * startLatLng[1] +
-      2 * (1 - t) * t * controlPoint[1] +
-      Math.pow(t, 2) * endLatLng[1];
-    latlngs.push([lat, lng]);
-  }
-  return latlngs;
-};
-
-const CurvedLine = ({ feature, index, visible }) => {
-  const map = useMap();
-
-  useEffect(() => {
-    if (!visible) return;
-
-    const curvedPath = createCurvedLine(
-      [-25.274398, 133.775136],
-      feature.destination.coordinates
-    );
-
-    const polyline = L.polyline(curvedPath, {
-      color: `#022c22`,
-      weight: 1,
-    }).addTo(map);
-
-    polyline.bindTooltip(
-      `${"AHECC " + feature.AHECC}<br>Waste: ${feature.origin.tonnes} tonnes`,
-      { sticky: true }
-    );
-
-    return () => {
-      map.removeLayer(polyline);
-    };
-  }, [map, feature, index, visible]);
-
-  return null;
-};
 
 export const Map = ({ features }) => {
   const { dataSource, setDataSource } = useContext(DataSourceContext);
@@ -109,17 +55,11 @@ export const Map = ({ features }) => {
       map.fitBounds(bounds);
     }
 
-    // Group features by coordinates
     const grouped = features.reduce((acc, feature) => {
       const originKey = feature.origin.coordinates.join(",");
       const destKey = feature.destination.coordinates.join(",");
-
-      // if (!acc[originKey])
-      //   acc[originKey] = { features: [], name: feature.origin.name };
       if (!acc[destKey])
         acc[destKey] = { features: [], name: feature.destination.name };
-
-      // acc[originKey].features.push(feature);
       acc[destKey].features.push(feature);
 
       return acc;
@@ -129,13 +69,8 @@ export const Map = ({ features }) => {
   }, [map, features]);
 
   const handleMarkerClick = useCallback((feature, e) => {
-    // console.log("Marker clicked:", feature);
     setDataSource(feature);
-    console.log(feature);
     setSelectedFeature(feature[0]);
-    console.log(dataSource[0]);
-    // console.log(feature);
-
     e.originalEvent.stopPropagation();
   }, []);
 
@@ -145,6 +80,91 @@ export const Map = ({ features }) => {
     });
     return null;
   }
+
+  const formatValue = (value) => {
+    if (value >= 1000000000) {
+      return (value / 1000000000).toFixed(1) + "B";
+    } else if (value >= 1000000) {
+      return (value / 1000000).toFixed(1) + "M";
+    } else if (value >= 1000) {
+      return (value / 1000).toFixed(1) + "k";
+    } else {
+      return value.toFixed(0);
+    }
+  };
+
+  const HeatmapLayer = ({ features }) => {
+    const map = useMap();
+    const legendRef = useRef(null);
+
+    useEffect(() => {
+      if (!map || !features.length) return;
+
+      const points = features.map((feature) => [
+        feature.destination.coordinates[0],
+        feature.destination.coordinates[1],
+        feature.destination.value,
+      ]);
+
+      const maxValue = Math.max(...points.map((p) => p[2]));
+
+      // Custom gradient
+      const gradient = {
+        0.0: "rgba(106, 140, 255, 0.7)",
+        0.2: "rgba(30, 144, 255, 0.7)",
+        0.4: "rgba(0, 191, 255, 0.7)",
+        0.6: "rgba(127, 255, 180, 0.7)",
+        0.8: "rgba(255, 215, 0, 0.7)",
+        1.0: "rgba(255, 140, 105, 0.7)",
+      };
+
+      const heatmap = L.heatLayer(points, {
+        radius: 30,
+        blur: 25,
+        maxZoom: 4,
+        max: maxValue,
+        gradient: gradient,
+      }).addTo(map);
+
+      // Create legend
+      const legend = L.control({ position: "bottomright" });
+
+      legend.onAdd = function () {
+        const div = L.DomUtil.create("div", "info legend");
+        const grades = [0, 0.2, 0.4, 0.6, 0.8, 1];
+        const labels = [];
+        let from, to;
+
+        for (let i = 0; i < grades.length; i++) {
+          from = grades[i];
+          to = grades[i + 1];
+
+          labels.push(
+            '<i style="background:' +
+              gradient[from] +
+              '"></i> ' +
+              formatValue(from * maxValue) +
+              (to ? "&ndash;" + formatValue(to * maxValue) : "+")
+          );
+        }
+
+        div.innerHTML = "<h4>Value ($AUD)</h4>" + labels.join("<br>");
+        return div;
+      };
+
+      legend.addTo(map);
+      legendRef.current = legend;
+
+      return () => {
+        map.removeLayer(heatmap);
+        if (legendRef.current) {
+          map.removeControl(legendRef.current);
+        }
+      };
+    }, [map, features]);
+
+    return null;
+  };
 
   const handleMapClick = useCallback(
     (e) => {
@@ -204,16 +224,6 @@ export const Map = ({ features }) => {
                 {features.length}
               </span>
               <br />
-              {/* <strong>Classes:</strong>{" "}
-              {[
-                ...new Set(
-                  features.map((f) => f.AdditionalClassificationInformation)
-                ),
-              ].join(", ")}
-              <br /> */}
-              {/*<strong>Quarters:</strong> {[...new Set(features.map(f => f.origin.quarter))].join(', ')}*/}
-              {/*<br/>*/}
-              {/*<strong>AHECCs:</strong> {[...new Set(features.map(f => f.AHECC))].join(', ')}*/}
             </>
           ) : (
             <>
@@ -263,6 +273,7 @@ export const Map = ({ features }) => {
         ]}
       />
       <MapEvents onClick={handleMapClick} />
+      <HeatmapLayer features={features} />
       <MarkerClusterGroup
         chunkedLoading
         spiderfyOnMaxZoom={true}
@@ -275,15 +286,6 @@ export const Map = ({ features }) => {
           renderMarker(coordKey, groupData)
         )}
       </MarkerClusterGroup>
-
-      {/* {features.map((feature, index) => (
-        <CurvedLine
-          key={`line-${index}`}
-          feature={feature}
-          index={index}
-          visible={selectedFeature === feature}
-        />
-      ))} */}
     </MapContainer>
   );
 };

@@ -91,7 +91,6 @@ export default function StackedBarWaste(data) {
   } else {
     dataset = processWasteData(dataSource);
   }
-  console.log(dataset);
   return (
     // {/* <h1 className="text-emerald-500">
     //   Exported Waste (tonnes) Categories by Financial Years

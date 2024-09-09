@@ -35,8 +35,6 @@ function processWasteData(data) {
       yearData[`${group}`] = ((yearData[group] / yearTotal) * 100).toFixed(2);
     });
 
-    console.log(yearData);
-
     return yearData;
   });
 }
@@ -81,7 +79,6 @@ const CustomTooltip = ({ active, payload, label }) => {
 };
 
 const CustomYAxisTick = ({ x, y, payload }) => {
-  console.log(payload);
   return (
     <g transform={`translate(${x},${y})`}>
       <text x={0} y={0} dy={16} textAnchor="end" fill="#fff" fontSize={12}>
