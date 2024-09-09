@@ -63,7 +63,7 @@ export default function Dashboard() {
     "destination.name": [],
     "origin.name": [],
   });
-  const [toggleHeatLayerValue, setToggleHeatLayerValue] = useState(true);
+  const [toggleHeatLayerValue, setToggleHeatLayerValue] = useState(false);
   const [features, setFeatures] = useState(data);
   const { dataSource, setDataSource } = useContext(DataSourceContext);
 

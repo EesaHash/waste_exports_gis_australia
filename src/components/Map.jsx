@@ -112,16 +112,16 @@ export const Map = ({ features, toggleHV }) => {
 
       // Custom gradient
       const gradient = {
-        0.0: "rgba(106, 140, 255, 0.7)",
-        0.2: "rgba(30, 144, 255, 0.7)",
-        0.4: "rgba(0, 191, 255, 0.7)",
-        0.6: "rgba(127, 255, 180, 0.7)",
-        0.8: "rgba(255, 215, 0, 0.7)",
-        1.0: "rgba(255, 140, 105, 0.7)",
+        0.0: "rgba(0, 0, 255, 0.7)", // Pure blue
+        0.2: "rgba(0, 102, 255, 0.7)", // Strong medium blue
+        0.3: "rgba(0, 191, 255, 0.7)", // Bright cyan blue
+        0.6: "rgba(0, 255, 127, 0.7)", // Bright greenish teal
+        0.8: "rgba(255, 215, 0, 0.7)", // Strong gold yellow
+        1.0: "rgba(255, 69, 0, 0.7)", // Bright orange-red
       };
 
       const heatmap = L.heatLayer(points, {
-        radius: 35,
+        radius: 25,
         blur: 20,
         maxZoom: 3,
         max: maxValue,
@@ -133,7 +133,7 @@ export const Map = ({ features, toggleHV }) => {
 
       legend.onAdd = function () {
         const div = L.DomUtil.create("div", "info legend");
-        const grades = [0, 0.2, 0.4, 0.6, 0.8, 1];
+        const grades = [0, 0.2, 0.3, 0.6, 0.8, 1];
         const labels = [];
         let from, to;
 
