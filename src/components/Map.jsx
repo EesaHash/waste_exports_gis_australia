@@ -7,6 +7,8 @@ import React, {
   useRef,
 } from "react";
 
+import { quantile } from "d3-array";
+
 import {
   MapContainer,
   TileLayer,
@@ -120,7 +122,7 @@ export const Map = ({ features, toggleHV }) => {
 
       const heatmap = L.heatLayer(points, {
         radius: 35,
-        blur: 25,
+        blur: 20,
         maxZoom: 3,
         max: maxValue,
         gradient: gradient,
