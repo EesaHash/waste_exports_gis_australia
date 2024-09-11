@@ -1,4 +1,9 @@
 import React, { useState, useEffect, useContext } from "react";
+import { ShootingStars } from "@/components/ui/shooting-stars";
+import { StarsBackground } from "@/components/ui/stars-background";
+import { BackgroundBeamsWithCollision } from "@/components/ui/background-beams-with-collision";
+import { HoverBorderGradient } from "@/components/ui/hover-border-gradient";
+import { motion } from "framer-motion";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { Map } from "../components/Map.jsx";
 import data from "../data/data.json";
@@ -114,7 +119,17 @@ export default function Dashboard() {
   return (
     <div className="w-screen h-screen bg-neutral-900 overflow-hidden ">
       <Header />
-      <div className="flex desktop:p-10 desktop:justify-center space-x-6 h-[calc(100vh-64px)] overflow-y-auto">
+
+      <motion.div
+        initial={{ scale: 0.9, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        transition={{
+          type: "spring",
+          stiffness: 260,
+          damping: 5,
+        }}
+        className="flex desktop:p-10 desktop:justify-center space-x-6 h-[calc(100vh-64px)] overflow-y-auto"
+      >
         <div className="max-w-[845px] flex-shrink-0">
           <div className="flex flex-wrap border border-borderColor ml-5 justify-center bg-standard rounded-lg mb-3">
             {[
@@ -250,7 +265,7 @@ export default function Dashboard() {
             <CarouselNext />
           </Carousel>
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 }
