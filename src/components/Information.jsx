@@ -77,7 +77,7 @@ export default function Information() {
           {/* <CardDescription>Card Description</CardDescription> */}
         </CardHeader>
         <CardContent className="bg-standard border-none">
-          <div className="text-5xl w-1/2 text-emerald-500 font-extrabold">
+          <div className="text-5xl w-1/2 text-white font-extrabold">
             <AnimatedNumber value={value} formatValue={formatValue} />
           </div>
           <CardTitle className="bg-standard mt-4 text-md font-semibold">
