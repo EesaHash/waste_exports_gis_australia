@@ -261,7 +261,7 @@ export const Map = ({ features, toggleHV }) => {
 
   return (
     <MapContainer
-      className="rounded-lg h-[500px] sm:w-[600px] md:w-[820px] border-2 shadow-md transition hover:border-emerald-500 border-neutral-600"
+      className="rounded-xl h-[550px]  border-2 shadow-md transition hover:border-emerald-500 border-borderColor"
       center={[0, 0]}
       zoom={2}
       minZoom={2}

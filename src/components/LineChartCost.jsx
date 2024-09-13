@@ -98,7 +98,7 @@ export default function LineChartCost(data) {
   return (
     <ResponsiveContainer width="100%" height="100%">
       <LineChart
-        className="bg-standard text-white border border-borderColor rounded-lg border-t-0 rounded-t-none "
+        className="bg-standard text-white border border-borderColor rounded-xl border-t-0 rounded-t-none "
         data={dataset}
         margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
       >

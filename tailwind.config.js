@@ -10,18 +10,22 @@ export default {
         sm: "calc(var(--radius) - 4px)",
       },
       colors: {
-        standard: "#1b1917",
-        borderColor: "#27272a",
+        // standard: "#1b1917",
+        // borderColor: "#27272a",
+        standard: "#061e1f",
+        borderColor: "#235045",
       },
     },
     screens: {
-      tablet: "640px",
+      tablet: "940px",
       // => @media (min-width: 640px) { ... }
 
       laptop: "1024px",
       // => @media (min-width: 1024px) { ... }
 
-      desktop: "1680px",
+      desktop: "1480px",
+      // => @media (min-width: 1280px) { ... }
+      big: "1780px",
       // => @media (min-width: 1280px) { ... }
     },
   },

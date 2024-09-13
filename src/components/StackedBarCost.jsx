@@ -95,20 +95,11 @@ export default function StackedBarCost({ data }) {
   return (
     <ResponsiveContainer width="100%" height="100%">
       <BarChart
-        className="bg-standard text-white border border-borderColor rounded-lg border-t-0 rounded-t-none "
+        className="bg-standard text-white border border-borderColor rounded-xl border-t-0 rounded-t-none "
         data={dataset}
         margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
       >
-        <XAxis
-          //   label={{
-          //     value: "random text",
-          //     position: "top",
-          //     offset: 160,
-          //     fill: "white",
-          //   }}
-          dataKey="Year"
-          tick={{ fill: "white", fontSize: "12px" }}
-        />
+        <XAxis dataKey="Year" tick={{ fill: "white", fontSize: "12px" }} />
         <YAxis
           tick={<CustomYAxisTick />}
           domain={[0, 100]}

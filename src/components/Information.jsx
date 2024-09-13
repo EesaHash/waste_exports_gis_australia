@@ -68,15 +68,15 @@ export default function Information() {
   }, [dataSource]);
 
   return (
-    <div className="w-[520px] flex ml-10 h-[260px] mb-4 bg-standard rounded-lg border-borderColor border">
-      <Card className="w-1/2">
-        <CardHeader className="bg-standard">
-          <CardTitle className="bg-standard text-xl font-semibold">
+    <div className="w-[520px] flex ml-10 h-[260px] mb-4  bg-standard rounded-xl border-borderColor border">
+      <Card className="w-1/2 mb-1.5 ml-1.5 shadow-inner-none border-none">
+        <CardHeader className="bg-standard border-none">
+          <CardTitle className="bg-standard border-none mt-0.5 rounded-xl text-xl font-semibold">
             Number of Exports
           </CardTitle>
           {/* <CardDescription>Card Description</CardDescription> */}
         </CardHeader>
-        <CardContent className="bg-standard">
+        <CardContent className="bg-standard border-none">
           <div className="text-5xl w-1/2 text-emerald-500 font-extrabold">
             <AnimatedNumber value={value} formatValue={formatValue} />
           </div>
@@ -90,7 +90,7 @@ export default function Information() {
             Leading State in Waste Exports
           </p>
           <div className="text-sm text-emerald-600 font-extrabold">
-            {leadingState}
+            {leadingState || "None"}
           </div>
         </CardContent>
       </Card>

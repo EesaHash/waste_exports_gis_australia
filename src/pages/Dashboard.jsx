@@ -4,7 +4,7 @@ import { StarsBackground } from "@/components/ui/stars-background";
 import { BackgroundBeamsWithCollision } from "@/components/ui/background-beams-with-collision";
 import { HoverBorderGradient } from "@/components/ui/hover-border-gradient";
 import { motion } from "framer-motion";
-import { AspectRatio } from "@/components/ui/aspect-ratio";
+import { X, ChevronsDownIcon } from "lucide-react";
 import { Map } from "../components/Map.jsx";
 import data from "../data/data.json";
 import { RxCross1 } from "react-icons/rx";
@@ -19,8 +19,6 @@ import {
   PopoverContent,
 } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
-import { ChevronDown } from "lucide-react";
-import { MyChart } from "../components/MyChart.jsx";
 import { DataSourceContext } from "../contexts/DataSource";
 import Header from "../components/Header.jsx";
 import StackedBarWaste from "../components/StackedBarWaste.jsx";
@@ -67,10 +65,12 @@ export default function Dashboard() {
     MaterialGroup: [],
     "destination.name": [],
     "origin.name": [],
+    AHECC: [],
   });
   const [toggleHeatLayerValue, setToggleHeatLayerValue] = useState(false);
   const [features, setFeatures] = useState(data);
   const { dataSource, setDataSource } = useContext(DataSourceContext);
+  const [destinationSearch, setDestinationSearch] = useState("");
 
   const filterOptions = {
     "origin.year": getUniqueValues(data, "origin.year"),
@@ -78,6 +78,41 @@ export default function Dashboard() {
     MaterialGroup: getUniqueValues(data, "MaterialGroup"),
     "destination.name": getUniqueValues(data, "destination.name"),
     "origin.name": getUniqueValues(data, "origin.name"),
+    AHECC: getUniqueValues(data, "AHECC"),
+  };
+
+  const filteredDestinations = filterOptions["destination.name"].filter(
+    (option) => option.toLowerCase().includes(destinationSearch.toLowerCase())
+  );
+
+  const clearDestinationSearch = () => {
+    setDestinationSearch("");
+  };
+
+  const renderFilterOptions = (filterType, options) => {
+    const sortedOptions = options.sort((a, b) => {
+      const aChecked = filters[filterType].includes(a);
+      const bChecked = filters[filterType].includes(b);
+      if (aChecked === bChecked) return 0;
+      return aChecked ? -1 : 1;
+    });
+
+    return sortedOptions.map((option) => (
+      <div key={option} className="flex items-center space-x-2 py-2">
+        <Checkbox
+          className="rounded-xl"
+          id={`${filterType}-${option}`}
+          checked={filters[filterType].includes(option)}
+          onCheckedChange={() => handleFilterChange(filterType, option)}
+        />
+        <label
+          htmlFor={`${filterType}-${option}`}
+          className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+        >
+          {option}
+        </label>
+      </div>
+    ));
   };
 
   useEffect(() => {
@@ -92,7 +127,7 @@ export default function Dashboard() {
       if (value === "All") {
         updatedFilters[filterType] = updatedFilters[filterType].includes("All")
           ? []
-          : ["All"];
+          : [];
       } else {
         const index = updatedFilters[filterType].indexOf(value);
         if (index > -1) {
@@ -117,7 +152,7 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="w-screen h-screen bg-neutral-900 overflow-hidden ">
+    <div className="w-screen h-screen bg-standard overflow-hidden ">
       <Header />
 
       <motion.div
@@ -128,116 +163,126 @@ export default function Dashboard() {
           stiffness: 260,
           damping: 5,
         }}
-        className="flex desktop:p-10 desktop:justify-center space-x-6 h-[calc(100vh-64px)] overflow-y-auto"
+        className="flex desktop:p-10 desktop:justify-center space-x-5 h-[calc(100vh-64px)] overflow-y-auto"
       >
-        <div className="max-w-[845px] flex-shrink-0">
-          <div className="flex flex-wrap border border-borderColor ml-5 justify-center bg-standard rounded-lg mb-3">
-            {[
-              { label: "Destination", filterType: "destination.name" },
-              { label: "Year", filterType: "origin.year" },
-              { label: "Quarter", filterType: "origin.quarter" },
-              { label: "Class", filterType: "MaterialGroup" },
-              { label: "State", filterType: "origin.name" },
-            ].map(({ label, filterType }) => (
-              <div
-                key={label}
-                className=" flex flex-col ml-1 mb-3 mt-3 space-y-2"
-              >
-                <Popover>
-                  <div>
-                    <PopoverTrigger asChild>
-                      <Button
-                        variant="outline"
-                        className="w-[120px] text-xs text-white rounded-lg "
-                      >
-                        {filters[filterType].length > 0
-                          ? `${filters[filterType].length}${
-                              " " + label + "(s)"
-                            }`
-                          : `${label}`}
-                        <ChevronDown className="h-auto w-4 ml-2 opacity-50" />
-                      </Button>
-                    </PopoverTrigger>
-
-                    <button onClick={() => clearFilter(filterType)}>
-                      <RxCross1 className="text-neutral-500  rounded-full hover:border-red-500 hover:text-red-400 font-bold transition text-xs ml-1 mt-1" />
-                    </button>
-                  </div>
-                  <PopoverContent className="w-[220px]  bg-black border scrollbar-thin scrollbar-track-emerald-500 border-neutral-500 text-white rounded-lg ml-5 p-5">
-                    <ScrollArea className="h-[200px] max-h-[300px] w-[200px] rounded-md">
-                      {filterOptions[filterType].map((option) => (
-                        <div
-                          key={option}
-                          className="flex items-center  space-x-2 py-1"
+        <div className="desktop:flex-shrink-0 max-w-[1050px] big:w-[1200px]  min-w-[500px]">
+          <div className="flex space-x-2">
+            <div className="flex flex-wrap border big:w-[1000px] bg-emerald-950 border-borderColor ml-5 justify-center rounded-xl mb-3">
+              {[
+                { label: "Dest", filterType: "destination.name" },
+                { label: "Year", filterType: "origin.year" },
+                { label: "Quarter", filterType: "origin.quarter" },
+                { label: "Type", filterType: "MaterialGroup" },
+                { label: "State", filterType: "origin.name" },
+                { label: "#", filterType: "AHECC" },
+              ].map(({ label, filterType }) => (
+                <div
+                  key={label}
+                  className="flex flex-col ml-1 mt-1.5 mb-1.5 space-y-1"
+                >
+                  <Popover>
+                    <div>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant="outline"
+                          className={" text-white text-[8.5px] rounded-2xl"}
                         >
-                          <Checkbox
-                            className="border-emerald-500 rounded"
-                            id={`${filterType}-${option}`}
-                            checked={filters[filterType].includes(option)}
-                            onCheckedChange={() =>
-                              handleFilterChange(filterType, option)
-                            }
-                          />
-                          <label
-                            htmlFor={`${filterType}-${option}`}
-                            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                          >
-                            {option}
-                          </label>
-                        </div>
-                      ))}
-                    </ScrollArea>
-                  </PopoverContent>
-                </Popover>
-                <div className="flex flex-row space-y-2">
-                  <div className="text-white text-xs w-[140px]">
-                    <div className="overflow-x-auto border p-1 border-borderColor  text-xs overflow-y-hidden content-center  rounded scrollbar-none scrollbar-thumb-emerald-500 scrollbar-track-emerald-700 h-7">
-                      <p className="bont-bold  rounded ml-1 text-emerald-500 whitespace-nowrap">
-                        {filters[filterType].join(" | ") || "All"}
-                      </p>
+                          {filters[filterType].length > 0
+                            ? `${filters[filterType].length}${
+                                " " + label + "(s)"
+                              }`
+                            : `${label}`}
+                          <ChevronsDownIcon className="text-emerald-500 m-1.5 mt-2 w-3"></ChevronsDownIcon>
+                        </Button>
+                      </PopoverTrigger>
+
+                      <button onClick={() => clearFilter(filterType)}>
+                        <RxCross1 className="text-neutral-500  rounded-full hover:border-red-500 hover:text-red-400 font-bold transition text-xs ml-0.5" />
+                      </button>
                     </div>
-                  </div>
+                    <PopoverContent className="w-[220px] bg-black border scrollbar-thin scrollbar-track-emerald-500 border-borderColor text-white rounded-xl ml-5 p-5">
+                      {filterType === "destination.name" && (
+                        <div className="relative mb-2">
+                          <input
+                            type="text"
+                            placeholder="Search"
+                            value={destinationSearch}
+                            onChange={(e) =>
+                              setDestinationSearch(e.target.value)
+                            }
+                            className="p-1 text-xs placeholder:text-white  w-full bg-neutral-800 text-white border border-neutral-600 rounded pr-8
+                                     focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500
+                                     active:bg-emerald-500 active:text-white
+                                     hover:border-emerald-500 transition-colors duration-200"
+                          />
+                          {destinationSearch && (
+                            <button
+                              onClick={clearDestinationSearch}
+                              className="absolute right-2 top-1/2 transform -translate-y-1/2 text-neutral-400 hover:text-white"
+                            >
+                              <X size={16} />
+                            </button>
+                          )}
+                        </div>
+                      )}
+                      <ScrollArea className="h-[200px] max-h-[300px] w-[200px] rounded-md">
+                        {renderFilterOptions(
+                          filterType,
+                          filterType === "destination.name"
+                            ? filteredDestinations
+                            : filterOptions[filterType]
+                        )}
+                      </ScrollArea>
+                    </PopoverContent>
+                  </Popover>
                 </div>
-              </div>
-            ))}
-            <button
-              onClick={() => {
-                clearFilter("destination.name");
-                clearFilter("origin.name");
-                clearFilter("origin.year");
-                clearFilter("origin.quarter");
-                clearFilter("MaterialGroup");
-              }}
-              className="ml-3 mr-3 mt-7 mb-7"
-            >
-              <VscClearAll className="rounded-full transition bg-emerald-600 p-2 hover:bg-emerald-500 text-3xl text-white" />
-            </button>
-            <button
-              onClick={() => {
-                setToggleHeatLayerValue(!toggleHeatLayerValue);
-              }}
-              className="mr-3"
-            >
-              {toggleHeatLayerValue && (
-                <MdLayers className="rounded-full transition bg-emerald-600 p-2 hover:bg-emerald-500 text-3xl text-white" />
-              )}
-              {!toggleHeatLayerValue && (
-                <MdOutlineLayers className="rounded-full transition bg-emerald-600 p-2 hover:bg-emerald-500 text-3xl text-white" />
-              )}
-            </button>
+              ))}
+            </div>
+            <div className="flex space-x-1 rounded-xl border mb-3 pl-2 pr-2 border-borderColor bg-emerald-950">
+              <button
+                onClick={() => {
+                  clearFilter("destination.name");
+                  clearFilter("origin.name");
+                  clearFilter("origin.year");
+                  clearFilter("origin.quarter");
+                  clearFilter("MaterialGroup");
+                }}
+                className=""
+              >
+                <VscClearAll className="rounded-full transition bg-emerald-600 p-2 hover:bg-emerald-500 text-3xl text-white" />
+              </button>
+              <button
+                onClick={() => {
+                  setToggleHeatLayerValue(!toggleHeatLayerValue);
+                }}
+                className=""
+              >
+                {toggleHeatLayerValue && (
+                  <MdLayers className="rounded-full transition bg-emerald-600 p-2 hover:bg-emerald-500 text-3xl text-white" />
+                )}
+                {!toggleHeatLayerValue && (
+                  <MdOutlineLayers className="rounded-full transition bg-emerald-600 p-2 hover:bg-emerald-500 text-3xl text-white" />
+                )}
+              </button>
+            </div>
           </div>
-          <div className="relative ml-5 z-10 h-[calc(100vh-200px)]">
+          <div className="relative ml-5 z-10 ">
             <Map features={features} toggleHV={toggleHeatLayerValue} />
           </div>
         </div>
 
-        <div className="flex-shrink-0 space-y-8">
+        <div className="desktop:flex-shrink-0 space-y-8">
           <Information></Information>
-
-          <Carousel className="w-[520px] text-neutral-200 ml-10 h-[320px]">
+          <Carousel
+            opts={{
+              align: "start",
+              loop: true,
+            }}
+            className="w-[520px] text-emerald-500 ml-10 h-[320px]"
+          >
             <CarouselContent>
               <CarouselItem className="flex flex-col items-center w-[520px] h-[320px]">
-                <h1 className="text-white text-lg font-semibold w-full flex justify-center bg-standard border-borderColor border border-b-0 rounded-t-lg">
+                <h1 className="text-white text-lg font-semibold w-full flex justify-center bg-standard border-borderColor border border-b-0 rounded-t-xl">
                   Exported Waste Categories (tonnes) By Years
                 </h1>
                 <div className="w-full  border-neutral-600 h-[290px]">
@@ -245,7 +290,7 @@ export default function Dashboard() {
                 </div>
               </CarouselItem>
               <CarouselItem className="flex flex-col items-center w-[520px] h-[320px]">
-                <h1 className="text-white font-semibold text-lg  w-full flex justify-center bg-standard border-borderColor border border-b-0 rounded-t-lg">
+                <h1 className="text-white font-semibold text-lg  w-full flex justify-center bg-standard border-borderColor border border-b-0 rounded-t-xl">
                   Exported Waste Categories (Value %) By Years
                 </h1>
                 <div className="w-full h-[290px]">
@@ -253,7 +298,7 @@ export default function Dashboard() {
                 </div>
               </CarouselItem>
               <CarouselItem className="flex flex-col items-center w-[520px] h-[320px]">
-                <h1 className="text-white font-semibold text-lg  w-full flex justify-center bg-standard border-borderColor border border-b-0 rounded-t-lg">
+                <h1 className="text-white font-semibold text-lg  w-full flex justify-center bg-standard border-borderColor border border-b-0 rounded-t-xl">
                   Exported Waste (tonnes) By Years
                 </h1>
                 <div className="w-full h-[290px]">

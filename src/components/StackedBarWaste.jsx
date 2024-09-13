@@ -97,7 +97,7 @@ export default function StackedBarWaste(data) {
     // </h1> */}
     <ResponsiveContainer width="100%" height="100%">
       <BarChart
-        className="bg-standard text-white border border-borderColor rounded-lg border-t-0 rounded-t-none "
+        className="bg-standard text-white border border-borderColor rounded-xl border-t-0 rounded-t-none "
         width={500}
         height={300}
         data={dataset}

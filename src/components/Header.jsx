@@ -8,7 +8,8 @@ export default function Header() {
         onClick={() => {
           location.reload();
         }}
-        containerClassName="flex cursor-pointer  text-lg font-bold h-12 border-none rounded-lg m-3 ml-5 mr-5"
+        className="bg-standard border border-borderColor "
+        containerClassName="flex cursor-pointer bg-standard text-lg font-bold h-12 border-none mt-4 mb-4 desktop:mb-0 desktop:mt-12 ml-5 mr-5"
       >
         <div>Australian Waste Exports GIS Dashboard</div>
         <ShootingStars />
