@@ -10,10 +10,10 @@ export default {
         sm: "calc(var(--radius) - 4px)",
       },
       colors: {
-        // standard: "#1b1917",
-        // borderColor: "#27272a",
-        standard: "#061e1f",
-        borderColor: "#235045",
+        standard: "black",
+        borderColor: "#27272a",
+        // standard: "#061e1f",
+        // borderColor: "#235045",
       },
     },
     screens: {

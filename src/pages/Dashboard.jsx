@@ -167,7 +167,7 @@ export default function Dashboard() {
       >
         <div className="desktop:flex-shrink-0 max-w-[1050px] big:w-[1200px]  min-w-[500px]">
           <div className="flex space-x-2">
-            <div className="flex flex-wrap border big:w-[1000px] bg-emerald-950 border-borderColor ml-5 justify-center rounded-xl mb-3">
+            <div className="flex flex-wrap border big:w-[1000px] bg-neutral-950 border-borderColor ml-5 justify-center rounded-xl mb-3">
               {[
                 { label: "Dest", filterType: "destination.name" },
                 { label: "Year", filterType: "origin.year" },
@@ -238,7 +238,7 @@ export default function Dashboard() {
                 </div>
               ))}
             </div>
-            <div className="flex space-x-1 rounded-xl border mb-3 pl-2 pr-2 border-borderColor bg-emerald-950">
+            <div className="flex space-x-1 rounded-xl border mb-3 pl-2 pr-2 border-borderColor bg-neutral-950">
               <button
                 onClick={() => {
                   clearFilter("destination.name");
@@ -249,7 +249,7 @@ export default function Dashboard() {
                 }}
                 className=""
               >
-                <VscClearAll className="rounded-full transition bg-emerald-600 p-2 hover:bg-emerald-500 text-3xl text-white" />
+                <VscClearAll className="rounded-full transition bg-emerald-500 p-2 hover:bg-emerald-600 text-3xl text-white" />
               </button>
               <button
                 onClick={() => {
@@ -258,10 +258,10 @@ export default function Dashboard() {
                 className=""
               >
                 {toggleHeatLayerValue && (
-                  <MdLayers className="rounded-full transition bg-emerald-600 p-2 hover:bg-emerald-500 text-3xl text-white" />
+                  <MdLayers className="rounded-full transition bg-emerald-500 p-2 hover:bg-emerald-600 text-3xl text-white" />
                 )}
                 {!toggleHeatLayerValue && (
-                  <MdOutlineLayers className="rounded-full transition bg-emerald-600 p-2 hover:bg-emerald-500 text-3xl text-white" />
+                  <MdOutlineLayers className="rounded-full transition bg-emerald-500 p-2 hover:bg-emerald-600 text-3xl text-white" />
                 )}
               </button>
             </div>
