@@ -153,8 +153,9 @@ export default function Dashboard() {
 
   return (
     <div className="w-screen h-screen bg-standard overflow-hidden ">
+      <ShootingStars></ShootingStars>
+      <StarsBackground></StarsBackground>
       <Header />
-
       <motion.div
         initial={{ scale: 0.9, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
@@ -167,11 +168,11 @@ export default function Dashboard() {
       >
         <div className="desktop:flex-shrink-0 max-w-[1050px] big:w-[1200px]  min-w-[500px]">
           <div className="flex space-x-2">
-            <div className="flex flex-wrap border big:w-[1000px] bg-neutral-950 border-borderColor ml-5 justify-center rounded-xl mb-3">
+            <div className="flex flex-wrap border  laptop:w-[680px] big:w-[1000px] bg-neutral-950 border-borderColor ml-5 justify-center rounded-xl mb-3">
               {[
                 { label: "Dest", filterType: "destination.name" },
                 { label: "Year", filterType: "origin.year" },
-                { label: "Quarter", filterType: "origin.quarter" },
+                { label: "Qtr", filterType: "origin.quarter" },
                 { label: "Type", filterType: "MaterialGroup" },
                 { label: "State", filterType: "origin.name" },
                 { label: "#", filterType: "AHECC" },
@@ -181,7 +182,7 @@ export default function Dashboard() {
                   className="flex flex-col ml-1 mt-1.5 mb-1.5 space-y-1"
                 >
                   <Popover>
-                    <div>
+                    <div className="flex">
                       <PopoverTrigger asChild>
                         <Button
                           variant="outline"
@@ -189,7 +190,7 @@ export default function Dashboard() {
                         >
                           {filters[filterType].length > 0
                             ? `${filters[filterType].length}${
-                                " " + label + "(s)"
+                                " " + label + "s"
                               }`
                             : `${label}`}
                           <ChevronsDownIcon className="text-emerald-500 m-1.5 mt-2 w-3"></ChevronsDownIcon>
@@ -197,7 +198,7 @@ export default function Dashboard() {
                       </PopoverTrigger>
 
                       <button onClick={() => clearFilter(filterType)}>
-                        <RxCross1 className="text-neutral-500  rounded-full hover:border-red-500 hover:text-red-400 font-bold transition text-xs ml-0.5" />
+                        <RxCross1 className="text-neutral-500 hover:text-red-400 font-bold transition ml-1 mr-1 text-xs" />
                       </button>
                     </div>
                     <PopoverContent className="w-[220px] bg-black border scrollbar-thin scrollbar-track-emerald-500 border-borderColor text-white rounded-xl ml-5 p-5">
@@ -246,6 +247,7 @@ export default function Dashboard() {
                   clearFilter("origin.year");
                   clearFilter("origin.quarter");
                   clearFilter("MaterialGroup");
+                  clearFilter("AHECC");
                 }}
                 className=""
               >
@@ -271,7 +273,7 @@ export default function Dashboard() {
           </div>
         </div>
 
-        <div className="desktop:flex-shrink-0 space-y-8">
+        <div className="desktop:flex-shrink-0 tablet:space-y-20 laptopm:space-y-8 desktop:space-y-8">
           <Information></Information>
           <Carousel
             opts={{

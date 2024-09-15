@@ -17,10 +17,13 @@ export default {
       },
     },
     screens: {
-      tablet: "940px",
+      tablet: "0",
       // => @media (min-width: 640px) { ... }
 
-      laptop: "1024px",
+      laptop: "940px",
+      // => @media (min-width: 1024px) { ... }
+
+      laptopm: "1262px",
       // => @media (min-width: 1024px) { ... }
 
       desktop: "1480px",

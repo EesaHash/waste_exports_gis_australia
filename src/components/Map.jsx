@@ -22,6 +22,8 @@ import "leaflet/dist/leaflet.css";
 import "leaflet.markercluster/dist/MarkerCluster.css";
 import "leaflet.markercluster/dist/MarkerCluster.Default.css";
 import MarkerClusterGroup from "@changey/react-leaflet-markercluster";
+import * as turf from "@turf/turf";
+import worldGeoJSON from "../data/countries.json";
 
 import L from "leaflet";
 import "leaflet.heat";
@@ -44,6 +46,8 @@ export const Map = ({ features, toggleHV }) => {
   const [map, setMap] = useState(null);
   const [selectedFeature, setSelectedFeature] = useState(null);
   const [groupedFeatures, setGroupedFeatures] = useState({});
+  const [selectedCountry, setSelectedCountry] = useState(null);
+  const geoJSONLayerRef = useRef(null);
 
   const markerIcon = useMemo(
     () =>
@@ -82,18 +86,78 @@ export const Map = ({ features, toggleHV }) => {
     setGroupedFeatures(grouped);
   }, [map, features]);
 
-  const handleMarkerClick = useCallback((feature, e) => {
-    setDataSource(feature);
-    setSelectedFeature(feature[0]);
-    e.originalEvent.stopPropagation();
-  }, []);
+  const findCountryForCoordinates = useCallback(
+    (lng, lat) => {
+      const point = turf.point([lng, lat]);
+      for (const feature of worldGeoJSON.features) {
+        if (feature.geometry.type === "Polygon") {
+          if (turf.booleanPointInPolygon(point, feature)) {
+            return feature;
+          }
+        } else if (feature.geometry.type === "MultiPolygon") {
+          for (const polygon of feature.geometry.coordinates) {
+            if (turf.booleanPointInPolygon(point, turf.polygon(polygon))) {
+              return feature;
+            }
+          }
+        }
+      }
+      return null;
+    },
+    [worldGeoJSON]
+  );
 
-  function MapEvents({ onClick }) {
-    useMapEvents({
-      click: onClick,
-    });
+  const CountryHighlight = () => {
+    const map = useMap();
+
+    useEffect(() => {
+      if (selectedCountry && map) {
+        if (geoJSONLayerRef.current) {
+          map.removeLayer(geoJSONLayerRef.current);
+        }
+
+        geoJSONLayerRef.current = L.geoJSON(selectedCountry, {
+          style: {
+            fillColor: "#6ee7b7",
+            weight: 1,
+            opacity: 1,
+            color: "#059669",
+            fillOpacity: 0.3,
+          },
+        }).addTo(map);
+
+        //map.fitBounds(geoJSONLayerRef.current.getBounds());
+
+        return () => {
+          if (geoJSONLayerRef.current) {
+            map.removeLayer(geoJSONLayerRef.current);
+          }
+        };
+      }
+    }, [map, selectedCountry]);
+
     return null;
-  }
+  };
+
+  const handleMarkerClick = useCallback(
+    (feature, e) => {
+      setDataSource(feature);
+      setSelectedFeature(feature[0]);
+
+      // Determine the country based on the clicked coordinates
+      const [lat, lng] = feature[0].destination.coordinates;
+      const foundCountry = findCountryForCoordinates(lng, lat);
+
+      if (foundCountry) {
+        setSelectedCountry(foundCountry);
+      } else {
+        setSelectedCountry(null);
+      }
+
+      e.originalEvent.stopPropagation();
+    },
+    [findCountryForCoordinates]
+  );
 
   const HeatmapLayer = ({ features }) => {
     const map = useMap();
@@ -168,13 +232,24 @@ export const Map = ({ features, toggleHV }) => {
     return null;
   };
 
+  const MapEvents = ({ onClick }) => {
+    useMapEvents({
+      click: onClick,
+    });
+    return null;
+  };
+
   const handleMapClick = useCallback(
     (e) => {
       console.log("Map clicked");
       setDataSource(features);
       setSelectedFeature(null);
+      setSelectedCountry(null);
+      if (geoJSONLayerRef.current && map) {
+        map.removeLayer(geoJSONLayerRef.current);
+      }
     },
-    [features]
+    [features, map]
   );
 
   const renderMarker = (coordKey, { features, name }) => {
@@ -191,7 +266,9 @@ export const Map = ({ features, toggleHV }) => {
         }}
       >
         <Popup>
-          <strong className="text-emerald-600 text-lg">{name}</strong>
+          <strong className="text-emerald-600 text-lg">
+            {name === "Israel" ? "Occupied Palestine" : name}
+          </strong>
           <br />
           {isGrouped ? (
             <>
@@ -285,6 +362,7 @@ export const Map = ({ features, toggleHV }) => {
       />
       <MapEvents onClick={handleMapClick} />
       <HeatmapLayer features={features} />
+      <CountryHighlight />
       <MarkerClusterGroup
         chunkedLoading
         spiderfyOnMaxZoom={true}
