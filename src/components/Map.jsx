@@ -6,6 +6,7 @@ import React, {
   useMemo,
   useRef,
 } from "react";
+import ReactDOM from "react-dom";
 
 import { quantile } from "d3-array";
 
@@ -17,6 +18,7 @@ import {
   Tooltip,
   useMap,
   useMapEvents,
+  ZoomControl,
 } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import "leaflet.markercluster/dist/MarkerCluster.css";
@@ -24,6 +26,8 @@ import "leaflet.markercluster/dist/MarkerCluster.Default.css";
 import MarkerClusterGroup from "@changey/react-leaflet-markercluster";
 import * as turf from "@turf/turf";
 import worldGeoJSON from "../data/countries.json";
+import { FaPlusCircle } from "react-icons/fa";
+import { FaMinusCircle } from "react-icons/fa";
 
 import L from "leaflet";
 import "leaflet.heat";
@@ -41,12 +45,110 @@ const formatValue = (value) => {
   }
 };
 
+const CustomZoomControl = () => {
+  const map = useMap();
+  const containerRef = useRef(null);
+
+  useEffect(() => {
+    const CustomZoomControl = L.Control.extend({
+      onAdd: function (map) {
+        const container = L.DomUtil.create(
+          "div",
+          "leaflet-bar leaflet-control leaflet-control-custom"
+        );
+        containerRef.current = container;
+        return container;
+      },
+      onRemove: function (map) {
+        ReactDOM.unmountComponentAtNode(containerRef.current);
+      },
+    });
+
+    const zoomControl = new CustomZoomControl({ position: "topright" });
+    map.addControl(zoomControl);
+
+    const ZoomButtons = () => (
+      <div className="flex border-2 bg-black text-white p-2 space-y-2 rounded border-emerald-500 flex-col">
+        <button onClick={() => map.zoomIn()} title="Zoom in">
+          <FaPlusCircle size={14} />
+        </button>
+        <button onClick={() => map.zoomOut()} title="Zoom out" className="">
+          <FaMinusCircle size={14} />
+        </button>
+      </div>
+    );
+
+    ReactDOM.render(<ZoomButtons />, containerRef.current);
+
+    return () => {
+      map.removeControl(zoomControl);
+    };
+  }, [map]);
+
+  return null;
+};
+
+const ResetViewControl = ({ initialView }) => {
+  const map = useMap();
+
+  useEffect(() => {
+    // Create a custom control
+    const ResetViewControl = L.Control.extend({
+      onAdd: function (map) {
+        const button = L.DomUtil.create(
+          "button",
+          "leaflet-bar leaflet-control leaflet-control-custom"
+        );
+
+        // SVG icon for reset
+        const svgIcon = `
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path>
+            <path d="M3 3v5h5"></path>
+          </svg>
+        `;
+
+        button.innerHTML = svgIcon;
+        button.title = "Reset View";
+        button.style.backgroundColor = "black";
+        button.style.color = "white";
+        button.style.width = "36px";
+        button.style.height = "36px";
+        button.style.cursor = "pointer";
+        button.style.padding = "4px";
+        button.style.display = "flex";
+        button.style.justifyContent = "center";
+        button.style.alignItems = "center";
+        button.style.borderColor = "#10b981";
+
+        L.DomEvent.disableClickPropagation(button);
+        L.DomEvent.on(button, "click", function () {
+          map.setView(initialView.center, initialView.zoom);
+        });
+
+        return button;
+      },
+    });
+
+    const resetControl = new ResetViewControl({ position: "topright" });
+    map.addControl(resetControl);
+
+    // Cleanup function to remove the control when the component unmounts
+    return () => {
+      map.removeControl(resetControl);
+    };
+  }, [map, initialView]);
+
+  return null;
+};
+
 export const Map = ({ features, toggleHV }) => {
   const { dataSource, setDataSource } = useContext(DataSourceContext);
   const [map, setMap] = useState(null);
   const [selectedFeature, setSelectedFeature] = useState(null);
   const [groupedFeatures, setGroupedFeatures] = useState({});
   const [selectedCountry, setSelectedCountry] = useState(null);
+  const [initialView, setInitialView] = useState({ center: [0, 0], zoom: 2 });
   const geoJSONLayerRef = useRef(null);
 
   const markerIcon = useMemo(
@@ -56,7 +158,7 @@ export const Map = ({ features, toggleHV }) => {
           "https://img.icons8.com/ios-filled/50/022c22/filled-circle.png",
         iconSize: [20, 20],
         iconAnchor: [0, 0],
-        popupAnchor: [0, -45],
+        popupAnchor: [10, 0],
       }),
     []
   );
@@ -71,6 +173,7 @@ export const Map = ({ features, toggleHV }) => {
         ])
       );
       map.fitBounds(bounds);
+      setInitialView({ center: bounds.getCenter(), zoom: map.getZoom() });
     }
 
     const grouped = features.reduce((acc, feature) => {
@@ -350,6 +453,7 @@ export const Map = ({ features, toggleHV }) => {
       ]}
       maxBoundsViscosity={1.0}
       onClick={handleMapClick}
+      zoomControl={false}
     >
       <TileLayer
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
@@ -360,6 +464,7 @@ export const Map = ({ features, toggleHV }) => {
           [100, 190],
         ]}
       />
+      <CustomZoomControl></CustomZoomControl>
       <MapEvents onClick={handleMapClick} />
       <HeatmapLayer features={features} />
       <CountryHighlight />
@@ -375,6 +480,7 @@ export const Map = ({ features, toggleHV }) => {
           renderMarker(coordKey, groupData)
         )}
       </MarkerClusterGroup>
+      <ResetViewControl initialView={initialView} />
     </MapContainer>
   );
 };
